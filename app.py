@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, jsonify, send_file
 from PIL import Image
 from datetime import datetime
 from imagekitio import ImageKit
-from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
 import qrcode
 import fitz  # PyMuPDF
 import os
@@ -151,27 +150,30 @@ def process_photo(photo_data):
     buffer.seek(0)
     return buffer
 
-def upload_to_imagekit(file_buffer, filename, folder="certificates"):
-    """Upload file to ImageKit"""
+def upload_to_imagekit(file_buffer, filename, cert_id):
+    """Upload file to ImageKit in Generated_Certificates/CERT_ID/ folder"""
     try:
         # Convert to base64
         file_buffer.seek(0)
         file_base64 = base64.b64encode(file_buffer.read()).decode('utf-8')
         
-        options = UploadFileRequestOptions(
-            folder=f"/{folder}/",
-            is_private_file=False
-        )
+        # Folder structure: Generated_Certificates/CERT0001/
+        folder_path = f"/Generated_Certificates/{cert_id}"
         
         result = imagekit.upload_file(
             file=file_base64,
             file_name=filename,
-            options=options
+            options={
+                "folder": folder_path,
+                "is_private_file": False
+            }
         )
         
-        return result.response_metadata.raw
+        return result.response_metadata.raw if hasattr(result, 'response_metadata') else result
     except Exception as e:
         print(f"ImageKit upload error: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 # Store certificate data in JSON file (simple database)
@@ -282,14 +284,15 @@ def generate_certificate():
         doc.close()
         pdf_buffer.seek(0)
         
-        # Upload PDF to ImageKit
-        safe_name = "".join(c for c in name if c.isalnum() or c in (' ', '-', '_')).strip()
-        pdf_filename = f"{sr_no:04d}_{safe_name}.pdf"
+        # Upload PDF to ImageKit: Generated_Certificates/CERT0001/certificate.pdf
+        pdf_upload = upload_to_imagekit(pdf_buffer, "certificate.pdf", cert_id)
         
-        upload_result = upload_to_imagekit(pdf_buffer, pdf_filename, "certificates")
-        
-        if not upload_result:
+        if not pdf_upload:
             return jsonify({'error': 'Failed to upload certificate to ImageKit'}), 500
+        
+        # Upload QR code to ImageKit: Generated_Certificates/CERT0001/qr.png
+        qr_buffer.seek(0)
+        qr_upload = upload_to_imagekit(qr_buffer, "qr.png", cert_id)
         
         # Save certificate data for verification
         save_certificate_data(cert_id, {
@@ -299,7 +302,8 @@ def generate_certificate():
             'duration': duration,
             'grade': grade,
             'doi': doi,
-            'pdf_url': upload_result.get('url', ''),
+            'pdf_url': pdf_upload.get('url', ''),
+            'qr_url': qr_upload.get('url', '') if qr_upload else '',
             'created_at': datetime.now().isoformat()
         })
         
@@ -310,7 +314,7 @@ def generate_certificate():
         return jsonify({
             'success': True,
             'cert_id': cert_id,
-            'pdf_url': upload_result.get('url', ''),
+            'pdf_url': pdf_upload.get('url', ''),
             'verify_url': verify_url,
             'message': f'Certificate {cert_id} generated successfully!'
         })
