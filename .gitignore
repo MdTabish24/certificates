@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+certificate_counter.json
+certificates_data.json
+temp_*.jpg
+*.log
+.vscode/

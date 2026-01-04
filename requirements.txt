@@ -1,0 +1,6 @@
+flask
+gunicorn
+Pillow
+PyMuPDF
+qrcode[pil]
+imagekitio

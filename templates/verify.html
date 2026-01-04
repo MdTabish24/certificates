@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificate Verification - CERT0015</title>
+    <title>Certificate Verification - {{ cert_id }}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -42,7 +42,7 @@
             font-size: 14px;
         }
         .info-row {
-            margin: 20px 0;
+            margin: 15px 0;
             padding: 15px;
             background: #f8f9fa;
             border-radius: 10px;
@@ -63,11 +63,28 @@
         .verified-badge {
             background: #10b981;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 25px;
             border-radius: 50px;
             text-align: center;
-            margin-top: 30px;
+            margin-top: 25px;
             font-weight: 600;
+            font-size: 16px;
+        }
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
         }
         @media (max-width: 600px) {
             .card { padding: 25px; }
@@ -80,23 +97,52 @@
     <div class="card">
         <div class="header">
             <h1>✅ Verified Certificate</h1>
-            <p>Certificate ID: CERT0015</p>
+            <p>Certificate ID: {{ cert_id }}</p>
         </div>
+        
         <div class="info-row">
             <div class="info-label">Student Name</div>
-            <div class="info-value">ANSARI MO AMAAN SARFARAZ</div>
+            <div class="info-value">{{ name }}</div>
         </div>
+        
         <div class="info-row">
             <div class="info-label">Course</div>
-            <div class="info-value">ADVANCE EXCEL</div>
+            <div class="info-value">{{ course }}</div>
         </div>
+        
         <div class="info-row">
             <div class="info-label">Aadhaar Number</div>
-            <div class="info-value">434535130824</div>
+            <div class="info-value">{{ aadhaar }}</div>
         </div>
+        
+        {% if duration %}
+        <div class="info-row">
+            <div class="info-label">Duration</div>
+            <div class="info-value">{{ duration }}</div>
+        </div>
+        {% endif %}
+        
+        {% if grade %}
+        <div class="info-row">
+            <div class="info-label">Grade</div>
+            <div class="info-value">{{ grade }}</div>
+        </div>
+        {% endif %}
+        
+        <div class="info-row">
+            <div class="info-label">Date of Issue</div>
+            <div class="info-value">{{ doi }}</div>
+        </div>
+        
         <div class="verified-badge">
             ✓ Verified & Authentic
         </div>
+        
+        {% if pdf_url %}
+        <a href="{{ pdf_url }}" target="_blank" class="download-btn">
+            📥 Download Certificate
+        </a>
+        {% endif %}
     </div>
 </body>
 </html>
