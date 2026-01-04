@@ -16,10 +16,9 @@ IMAGEKIT_PRIVATE_KEY = os.environ.get('IMAGEKIT_PRIVATE_KEY', 'your_private_key'
 IMAGEKIT_PUBLIC_KEY = os.environ.get('IMAGEKIT_PUBLIC_KEY', 'your_public_key')
 IMAGEKIT_URL_ENDPOINT = os.environ.get('IMAGEKIT_URL_ENDPOINT', 'https://ik.imagekit.io/your_id')
 
-# Initialize ImageKit
+# Initialize ImageKit (v5 API)
 imagekit = ImageKit(
     private_key=IMAGEKIT_PRIVATE_KEY,
-    public_key=IMAGEKIT_PUBLIC_KEY,
     url_endpoint=IMAGEKIT_URL_ENDPOINT
 )
 
