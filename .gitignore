@@ -6,3 +6,4 @@ certificates_data.json
 temp_*.jpg
 *.log
 .vscode/
+docs/
